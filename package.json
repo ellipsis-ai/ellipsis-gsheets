@@ -1,0 +1,23 @@
+{
+  "name": "ellipsis-gsheets",
+  "version": "0.0.1",
+  "description": "Ellipsis Google Sheets support",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ellipsis-ai/ellipsis-gsheets.git"
+  },
+  "keywords": [
+    "ellipsis-ai",
+    "googlesheets"
+  ],
+  "author": "Ellipsis Co. <luke@ellipsis.ai> (https://www.ellipsis.ai/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ellipsis-ai/ellipsis-gsheets/issues"
+  },
+  "homepage": "https://github.com/ellipsis-ai/ellipsis-gsheets#readme"
+}
