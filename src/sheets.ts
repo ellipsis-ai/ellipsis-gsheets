@@ -11,6 +11,14 @@ interface SheetInfo {
   data?: Array<SheetRow> | null
 }
 
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const ALL_POSSIBLE_CELLS = ALPHABET.slice();
+ALPHABET.forEach((firstLetter) => {
+  ALPHABET.forEach((secondLetter) => {
+    ALL_POSSIBLE_CELLS.push(firstLetter + secondLetter);
+  });
+});
+
 export class Sheet {
   readonly sheets: sheets_v4.Sheets;
   readonly client: JWT;
@@ -131,4 +139,15 @@ export class Sheet {
     });
   }
 
+  static rangeFor(sheetName: string, rowIndex: number, columnIndex: number): string {
+    return `${sheetName}!${Sheet.cellLabelFor(rowIndex, columnIndex)}`;
+  }
+
+  static cellLabelFor(rowIndex: number, columnIndex: number): string {
+    const column = ALL_POSSIBLE_CELLS[columnIndex];
+    if (!column) {
+      throw new Error(`Column index ${columnIndex} out of valid range -- can only support columns A (0) to ZZ (701)`);
+    }
+    return `${column}${rowIndex + 1}`;
+  }
 }
