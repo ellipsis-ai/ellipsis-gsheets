@@ -25,5 +25,3 @@ export function Client(
     subject: serviceAccountEmail
   });
 };
-
-export default Client;

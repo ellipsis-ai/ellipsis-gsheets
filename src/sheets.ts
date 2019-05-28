@@ -3,22 +3,12 @@ import { JWT } from 'google-auth-library';
 import { google, sheets_v4 } from 'googleapis';
 import { sheets } from 'googleapis/build/src/apis/sheets';
 
-interface SheetOptions {
-  spreadsheetId: string
-  range: string
-  client: JWT
-}
+type SheetRow = Array<any>
 
-type CellValue = string | number
-type SheetRow = Array<CellValue>
-
-type WriteSheetOptions = SheetOptions & {
-  rows: Array<SheetRow>
-}
-
-interface WriteOptions {
-  range: string
-  rows: Array<SheetRow>
+interface SheetInfo {
+  id: number | null
+  name: string | null
+  data?: Array<SheetRow> | null
 }
 
 export class Sheet {
@@ -52,7 +42,7 @@ export class Sheet {
     }
   }
 
-  append(range: string, rows: Array<SheetRow>) {
+  append(range: string, rows: Array<SheetRow>): Promise<number | null> {
     return this.checkAuthAnd(() => {
       return this.sheets.spreadsheets.values.append({
         spreadsheetId: this.spreadsheetId,
@@ -60,13 +50,12 @@ export class Sheet {
         valueInputOption: 'USER_ENTERED',
         requestBody: {
           values: rows
-        },
-        auth: this.client
-      }).then((response) => response.data.updates ? response.data.updates.updatedCells : null);
+        }
+      }).then((response) => response.data.updates && response.data.updates.updatedCells || null);
     });
   }
 
-  update(range: string, rows: Array<SheetRow>) {
+  update(range: string, rows: Array<SheetRow>): Promise<number | null> {
     return this.checkAuthAnd(() => {
       return this.sheets.spreadsheets.values.update({
         spreadsheetId: this.spreadsheetId,
@@ -75,21 +64,71 @@ export class Sheet {
         requestBody: {
           range: range,
           values: rows,
-        },
-        auth: this.client
-      }).then((response) => response.data.updatedCells);
+        }
+      }).then((response) => response.data.updatedCells || null);
     });
   }
 
-  get(range: string) {
+  get(range: string): Promise<Array<SheetRow>> {
     return this.checkAuthAnd(() => {
       return this.sheets.spreadsheets.values.get({
         spreadsheetId: this.spreadsheetId,
         range: range,
         valueRenderOption: 'FORMATTED_VALUE'
-      }).then((response) => response.data.values);
+      }).then((response) => response.data.values || []);
     });
   }
-}
 
-export default Sheet;
+  getAllSheets(options?: { includeData?: boolean }): Promise<Array<SheetInfo>> {
+    return this.checkAuthAnd(() => {
+      return this.sheets.spreadsheets.get({
+        spreadsheetId: this.spreadsheetId,
+        ranges: [],
+        includeGridData: options && options.includeData || false
+      }).then((response) => {
+        if (!response.data.sheets) {
+          return [];
+        } else {
+          return response.data.sheets.map((sheet) => {
+            const firstGrid = sheet.data && sheet.data[0] || null;
+            return {
+              id: sheet.properties && typeof sheet.properties.sheetId === "number" ? sheet.properties.sheetId : null,
+              name: sheet.properties && typeof sheet.properties.title === "string" ? sheet.properties.title : null,
+              data: firstGrid && firstGrid.rowData ? firstGrid.rowData.map((cellData) => {
+                return cellData.values ? cellData.values.map((cellValue) => cellValue.formattedValue || null) : [];
+              }) : null
+            };
+          });
+        }
+      });
+    });
+  }
+
+  createSheet(name: string): Promise<SheetInfo> {
+    return this.checkAuthAnd(() => {
+      return this.sheets.spreadsheets.batchUpdate({
+        spreadsheetId: this.spreadsheetId,
+        requestBody: {
+          requests: [{
+            addSheet: {
+              properties: {
+                title: name,
+                gridProperties: {
+                  frozenRowCount: 1
+                }
+              }
+            }
+          }]
+        }
+      }).then((response) => {
+        const newSheetResponse = response.data.replies && response.data.replies[0] || null;
+        const properties = newSheetResponse && newSheetResponse.addSheet && newSheetResponse.addSheet.properties || null;
+        return {
+          id: properties && properties.sheetId || null,
+          name: properties && properties.title || null
+        };
+      });
+    });
+  }
+
+}
