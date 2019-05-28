@@ -2,9 +2,12 @@
   "name": "ellipsis-gsheets",
   "version": "0.0.1-beta.0",
   "description": "Ellipsis Google Sheets support",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "tsc": "./node_modules/.bin/tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "./node_modules/.bin/tsc"
   },
   "repository": {
     "type": "git",
