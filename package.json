@@ -1,6 +1,6 @@
 {
   "name": "ellipsis-gsheets",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1",
   "description": "Ellipsis Google Sheets support",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
