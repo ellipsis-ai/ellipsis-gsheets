@@ -2,7 +2,7 @@
   "name": "ellipsis-gsheets",
   "version": "0.0.1",
   "description": "Ellipsis Google Sheets support",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,5 +19,12 @@
   "bugs": {
     "url": "https://github.com/ellipsis-ai/ellipsis-gsheets/issues"
   },
-  "homepage": "https://github.com/ellipsis-ai/ellipsis-gsheets#readme"
+  "homepage": "https://github.com/ellipsis-ai/ellipsis-gsheets#readme",
+  "dependencies": {
+    "googleapis": "^40.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.0.2",
+    "typescript": "^3.4.5"
+  }
 }
